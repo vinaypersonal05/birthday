@@ -1,0 +1,1456 @@
+/* ==========================================================================
+   THE ENCHANTED JOURNAL OF PRATIKSHA
+   2-Page Open Book Spread Styling & 3D Physical Book Mechanics
+   ========================================================================== */
+
+:root {
+  --color-bg-dark: #060913;
+  --color-sky-night: #0a1128;
+  --color-gold: #e2c044;
+  --color-gold-glow: rgba(226, 192, 68, 0.6);
+  --color-gold-bright: #fff2a1;
+  --color-parchment: #f7ebd0;
+  --color-parchment-dark: #e8d7ae;
+  --color-ink: #1a0f07;
+  --color-ink-light: #3d2314;
+  --color-leather: #3b2314;
+  --color-leather-dark: #21130a;
+  --color-wax-red: #8b0000;
+  --color-wax-glow: #ff3333;
+  
+  --font-heading: 'Cinzel Decorative', serif;
+  --font-subheading: 'MedievalSharp', cursive;
+  --font-handwriting: 'Charm', cursive;
+  --font-body: 'Cormorant Garamond', serif;
+
+  --transition-smooth: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-slow: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Base Resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-bg-dark);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 18px;
+}
+
+/* Particle Canvas */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Audio Control */
+.audio-control-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid var(--color-gold);
+  border-radius: 30px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(226, 192, 68, 0.5);
+  backdrop-filter: blur(10px);
+  transition: var(--transition-smooth);
+}
+
+.audio-control-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 30px rgba(226, 192, 68, 0.85);
+}
+
+.audio-icon { font-size: 1.3rem; }
+.audio-label {
+  font-family: var(--font-subheading);
+  font-size: 0.95rem;
+  color: var(--color-gold-bright);
+}
+
+
+/* ==================== CINEMATIC VIEWPORT & STAGES ==================== */
+.cinematic-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 2;
+}
+
+
+
+
+/* Scene Stage & Views */
+.scene-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.stage-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(24px) scale(1.02);
+  transition: opacity 1.2s ease, transform 1.6s cubic-bezier(0.25, 1, 0.5, 1), visibility 1.2s;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stage-view.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0) scale(1);
+  z-index: 20;
+}
+
+#stage-clouds-view.active {
+  z-index: 100;
+}
+
+/* Scene Background Image & Overlay */
+.scene-bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.85) contrast(1.1);
+  animation: kenBurns 20s infinite alternate linear;
+}
+
+@keyframes kenBurns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.12); }
+}
+
+.scene-overlay-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 30%, rgba(6, 9, 19, 0.75) 100%),
+              linear-gradient(180deg, rgba(6, 9, 19, 0.4) 0%, rgba(6, 9, 19, 0.8) 100%);
+  pointer-events: none;
+}
+
+.scene-connection-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, rgba(226, 192, 68, 0.12) 20%, rgba(255, 255, 255, 0.24) 50%, rgba(226, 192, 68, 0.12) 80%, transparent 100%);
+  mix-blend-mode: screen;
+  filter: blur(8px);
+  opacity: 0.65;
+  transform: translateX(-140%);
+}
+
+.stage-view.active .scene-connection-glow {
+  animation: journeyGlow 3.4s ease-in-out forwards;
+}
+
+@keyframes journeyGlow {
+  0% { transform: translateX(-140%); opacity: 0; }
+  20% { opacity: 0.65; }
+  100% { transform: translateX(140%); opacity: 0; }
+}
+
+/* Scene Captions */
+.cinematic-caption {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 40;
+  background: rgba(6, 9, 19, 0.88);
+  padding: 20px 40px;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 192, 68, 0.5);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.8);
+  max-width: 650px;
+  animation: captionFade 1s ease forwards;
+}
+
+@keyframes captionFade {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.cinematic-caption h2 {
+  font-family: var(--font-heading);
+  color: var(--color-gold-bright);
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+  text-shadow: 0 0 12px var(--color-gold-glow);
+}
+
+.cinematic-caption p {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  color: #e2e8f0;
+}
+
+
+/* ==================== INTRO PORTAL CARD ==================== */
+#stage-clouds-view {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #1e293b 0%, #060913 100%);
+}
+
+.intro-portal-card {
+  position: relative;
+  z-index: 100;
+  text-align: center;
+  max-width: 620px;
+  width: 90vw;
+  padding: 45px 35px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid var(--color-gold);
+  border-radius: 24px;
+  box-shadow: 0 0 60px rgba(226, 192, 68, 0.5), inset 0 0 30px rgba(226, 192, 68, 0.2);
+  backdrop-filter: blur(20px);
+  animation: floatCard 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-10px); }
+}
+
+.hogwarts-crest {
+  font-size: 3.2rem;
+  margin-bottom: 15px;
+  text-shadow: 0 0 25px var(--color-gold-glow);
+}
+
+.portal-title {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  color: var(--color-gold-bright);
+  line-height: 1.2;
+  text-shadow: 0 0 20px var(--color-gold-glow);
+}
+
+.portal-recipient {
+  font-family: var(--font-handwriting);
+  font-size: 2.2rem;
+  color: var(--color-gold);
+  margin-bottom: 12px;
+}
+
+.portal-subtitle {
+  font-size: 1.2rem;
+  color: #e2e8f0;
+  margin-bottom: 25px;
+  font-style: italic;
+}
+
+.portal-status-badge {
+  display: inline-block;
+  font-family: var(--font-subheading);
+  font-size: 1.05rem;
+  color: var(--color-gold-bright);
+  background: rgba(226, 192, 68, 0.15);
+  border: 1px solid var(--color-gold);
+  padding: 12px 28px;
+  border-radius: 30px;
+  box-shadow: 0 0 20px var(--color-gold-glow);
+  animation: pulseGlow 2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { opacity: 0.8; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1.03); }
+}
+
+.candle-light-glow {
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 242, 161, 0.15) 0%, rgba(226, 192, 68, 0.05) 50%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  animation: candleFlicker 3s infinite alternate ease-in-out;
+}
+
+@keyframes candleFlicker {
+  0% { opacity: 0.7; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1.04); }
+}
+
+
+/* ==================== THE 3D HARDCOVER BOOK ==================== */
+.book-container {
+  position: relative;
+  width: 90vw;
+  max-width: 1050px;
+  height: 88vh;
+  max-height: 780px;
+  perspective: 2200px;
+  z-index: 100;
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* State Closed: Resting on the Wizard Desk Table */
+.book-container.state-closed {
+  width: 440px;
+  height: 680px;
+  transform: rotateX(25deg) rotateZ(-3deg) translateY(50px) scale(0.82);
+  cursor: pointer;
+}
+
+.book-container.state-closed:hover {
+  transform: rotateX(15deg) rotateZ(-1deg) translateY(20px) scale(0.88);
+}
+
+/* State Open: Zoomed Centered Right in Front of Us! */
+.book-container.state-open {
+  transform: rotateX(0deg) rotateZ(0deg) translateY(0) scale(1);
+}
+
+.book-chassis {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Base Page Plates (Visible 2-page open book background) */
+.book-page-base-plate {
+  position: absolute;
+  top: 8px;
+  width: calc(50% - 8px);
+  height: calc(100% - 16px);
+  background: var(--color-parchment);
+  color: var(--color-ink);
+  padding: 35px;
+  box-shadow: inset 0 0 40px rgba(139, 94, 60, 0.25);
+  z-index: 5;
+  overflow: hidden;
+}
+
+.left-base-plate {
+  left: 8px;
+  border-radius: 14px 0 0 14px;
+  border-right: 2px solid rgba(139, 94, 60, 0.4);
+  background: linear-gradient(90deg, #e5d3a5 0%, var(--color-parchment) 15%);
+}
+
+.right-base-plate {
+  right: 8px;
+  border-radius: 0 14px 14px 0;
+  background: linear-gradient(-90deg, #e5d3a5 0%, var(--color-parchment) 15%);
+}
+
+
+/* ==================== TWO-SIDED LEATHER COVER PLATE ==================== */
+.book-cover-plate {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 1.1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.state-closed .front-cover-plate {
+  width: 100%;
+  left: 0;
+  transform-origin: left center;
+  transform: rotateY(0deg);
+  z-index: 500;
+}
+
+/* Front Cover flips like a normal physical paper sheet around left spine! */
+.front-cover-plate.flipped {
+  transform: rotateY(-180deg);
+  z-index: 10; /* Low z-index on left side so physical page sheets sit ON TOP! */
+}
+
+.back-cover-plate {
+  right: 0;
+  width: 50%;
+  z-index: 2;
+  background: linear-gradient(135deg, #422617 0%, #261408 100%);
+  border: 8px solid #5c381e;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.95);
+}
+
+/* TWO-SIDED COVER FACES */
+.cover-face-front, .cover-face-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  backface-visibility: hidden !important;
+  transform-style: preserve-3d;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 35px var(--color-gold-glow);
+}
+
+/* Outer Leather Front Cover */
+.cover-face-front {
+  transform: rotateY(0deg) translateZ(1px);
+  background: linear-gradient(135deg, #422617 0%, #261408 100%);
+  border: 8px solid #5c381e;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+/* Inside Front Cover (Back Face when flipped 180 deg!) */
+.cover-face-back {
+  transform: rotateY(180deg) translateZ(1px);
+  background: linear-gradient(135deg, #2b170c 0%, #1a0d06 100%);
+  border: 8px solid #4a2d18;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  text-align: center;
+  border-radius: 16px 0 0 16px;
+}
+
+.inside-cover-border {
+  border: 2px dashed var(--color-gold);
+  border-radius: 12px;
+  padding: 30px 20px;
+  width: 90%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(226, 192, 68, 0.05);
+}
+
+.inside-cover-crest {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  text-shadow: 0 0 15px var(--color-gold-glow);
+}
+
+.inside-cover-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-gold-bright);
+  margin-bottom: 6px;
+}
+
+.inside-cover-recipient {
+  font-family: var(--font-handwriting);
+  font-size: 1.4rem;
+  color: var(--color-gold);
+  margin-bottom: 15px;
+}
+
+.inside-cover-line {
+  width: 60px;
+  height: 2px;
+  background: var(--color-gold);
+  margin-bottom: 15px;
+}
+
+.inside-cover-quote {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #cbd5e1;
+}
+
+.leather-scratches-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.corner-protector {
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  border: 3px solid var(--color-gold);
+  box-shadow: 0 0 10px var(--color-gold-glow);
+}
+.top-left { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+.top-right { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+.bottom-left { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+.bottom-right { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+.cover-emblem-seal {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #5c381e 0%, #21130a 100%);
+  border: 3px solid var(--color-gold);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 25px;
+  box-shadow: 0 0 25px var(--color-gold-glow);
+}
+
+.rune-circle-glow {
+  font-size: 0.8rem;
+  color: var(--color-gold-bright);
+  letter-spacing: 2px;
+}
+
+.emblem-crest {
+  font-size: 2.2rem;
+}
+
+.cover-embossed-title {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  color: var(--color-gold-bright);
+  line-height: 1.2;
+  text-shadow: 0 0 15px var(--color-gold-glow);
+  margin-bottom: 6px;
+}
+
+.cover-embossed-recipient {
+  font-family: var(--font-handwriting);
+  font-size: 2rem;
+  color: var(--color-gold);
+  margin-bottom: 12px;
+}
+
+.cover-gold-subtitle {
+  font-family: var(--font-subheading);
+  font-size: 1rem;
+  color: #cbd5e1;
+  margin-bottom: 35px;
+}
+
+.cover-open-prompt {
+  background: linear-gradient(135deg, var(--color-gold) 0%, #aa7c11 100%);
+  color: #111;
+  padding: 14px 30px;
+  border-radius: 30px;
+  font-family: var(--font-subheading);
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0 0 25px var(--color-gold-glow);
+  animation: pulsePrompt 2s infinite alternate;
+}
+
+@keyframes pulsePrompt {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.06); box-shadow: 0 0 40px var(--color-gold-bright); }
+}
+
+.intro-video-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #08080d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.intro-video-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.intro-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  z-index: 1;
+}
+
+.intro-video-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.95) 100%);
+  z-index: 2;
+}
+
+.front-cover-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateX(-120%) rotateY(0deg) !important;
+}
+
+
+/* ==================== 3D PHYSICAL PAPER STACK & SHEETS ==================== */
+.book-pages-stack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  z-index: 50;
+}
+
+.state-closed .book-pages-stack {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Individual Physical 3D Page Sheet */
+.page-sheet {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: calc(50% - 8px);
+  height: calc(100% - 16px);
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1);
+  border-radius: 0 14px 14px 0;
+  box-shadow: inset 0 0 30px rgba(139, 94, 60, 0.25);
+  cursor: pointer;
+}
+
+/* Front & Back Faces */
+.page-face-front, .page-face-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color-parchment);
+  color: var(--color-ink) !important;
+  overflow: hidden;
+  padding: 30px;
+  border-radius: 0 14px 14px 0;
+  backface-visibility: hidden !important;
+  box-shadow: inset 0 0 40px rgba(139, 94, 60, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.page-face-front {
+  z-index: 2;
+  transform: rotateY(0deg) translateZ(1px);
+  background: linear-gradient(-90deg, #e5d3a5 0%, var(--color-parchment) 15%);
+}
+
+.page-face-back {
+  z-index: 1;
+  transform: rotateY(180deg) translateZ(1px);
+  border-radius: 14px 0 0 14px;
+  background: linear-gradient(90deg, #e5d3a5 0%, var(--color-parchment) 15%);
+}
+
+/* Flipped Page State */
+.page-sheet.flipped {
+  transform: rotateY(-180deg);
+  box-shadow: -15px 0 35px rgba(0,0,0,0.5);
+  animation: paperWobble 0.3s 0.9s ease;
+}
+
+@keyframes paperWobble {
+  0% { transform: rotateY(-180deg); }
+  50% { transform: rotateY(-177deg); }
+  100% { transform: rotateY(-180deg); }
+}
+
+.paper-grain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle at 80% 20%, rgba(139, 94, 60, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+
+/* ==================== HIGH CONTRAST TYPOGRAPHY & ENHANCED PORTRAITS ==================== */
+.page-badge {
+  font-family: var(--font-subheading);
+  font-size: 0.9rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #78350f !important;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.page-title {
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: #1a0f07 !important;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.page-tagline {
+  font-family: var(--font-handwriting);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #78350f !important;
+  border-left: 4px solid #8b5e3c;
+  padding-left: 12px;
+  margin-bottom: 14px;
+}
+
+.page-body-text {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: #1a0f07 !important;
+  text-align: justify;
+  white-space: pre-line;
+}
+
+.page-body-text::first-letter {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  float: left;
+  line-height: 0.8;
+  margin-right: 8px;
+  color: #78350f !important;
+}
+
+.toc-list {
+  margin-top: 8px;
+  padding-left: 8px;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.toc-list li {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px;
+  border: 1px solid rgba(139, 94, 60, 0.35);
+  background: rgba(232, 215, 174, 0.75);
+  border-radius: 8px;
+}
+
+.toc-chapter {
+  font-family: var(--font-subheading);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #78350f;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.toc-description {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #1a0f07;
+  margin-top: 1px;
+  line-height: 1.2;
+}
+
+.page-illustration {
+  width: 100%;
+  height: 400px;
+  border-radius: 12px;
+  border: 3px solid #8b5e3c;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.page-illustration.small-illustration {
+  height: 620px;
+}
+
+.page-illustration.small-illustration .illustration-art {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.illustration-art {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.illustration-caption {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(26, 15, 7, 0.9);
+  color: var(--color-parchment) !important;
+  padding: 5px;
+  text-align: center;
+  font-family: var(--font-subheading);
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+/* Quotes Card */
+.quotes-card {
+  background: rgba(139, 94, 60, 0.12);
+  border: 2px dashed #8b5e3c;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.quote-item {
+  border-left: 4px solid #78350f;
+  padding-left: 12px;
+}
+
+.quote-text {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-style: italic;
+  color: #1a0f07 !important;
+  margin-bottom: 4px;
+}
+
+.quote-author {
+  font-family: var(--font-subheading);
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #78350f !important;
+  text-align: right;
+}
+
+/* ENHANCED BIGGER PORTRAIT CARDS FOR PRATIKSHA */
+.portraits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.portrait-card {
+  background: rgba(232, 215, 174, 0.9);
+  border: 2px solid #8b5e3c;
+  border-radius: 10px;
+  padding: 0;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: var(--transition-smooth);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portrait-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 20px rgba(226, 192, 68, 0.4);
+  border-color: var(--color-gold);
+}
+
+.portrait-frame-art {
+  width: 100%;
+  height: 220px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-bottom: 0;
+  border: none;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  background-color: rgba(247, 235, 208, 0.9);
+}
+
+
+/* Wax Seal Button & Hidden Birthday Scroll */
+.wax-seal-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 25px 10px;
+  gap: 20px;
+}
+
+.envelope-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: 16px;
+  min-height: 340px;
+  overflow: visible;
+}
+
+.envelope-shell {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  min-height: 180px;
+  background: linear-gradient(180deg, #f4e7c3 0%, #e7d1a0 100%);
+  border: 3px solid #8b5e3c;
+  border-radius: 18px;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.12), 0 10px 24px rgba(0,0,0,0.16);
+  overflow: visible;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  background: linear-gradient(180deg, #e2c17b 0%, #c59d5a 100%);
+  border-bottom: 2px solid rgba(139, 94, 60, 0.7);
+  transform-origin: top;
+  transform: rotateX(0deg);
+  transition: transform 0.45s ease;
+  z-index: 3;
+}
+
+.envelope-shell.open .envelope-flap {
+  transform: rotateX(-175deg);
+}
+
+.envelope-shell.open {
+  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+}
+
+.birthday-parchment-scroll {
+  max-width: 380px;
+  width: 90%;
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, 0) scale(0.96);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.7s ease, transform 0.7s ease, top 0.7s ease;
+  z-index: 2;
+}
+
+.birthday-parchment-scroll.revealed {
+  opacity: 1;
+  visibility: visible;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.page-face-front.zoomed, .page-face-back.zoomed {
+  transform: scale(1.05);
+  z-index: 9999 !important;
+}
+
+.page-face-front.zoomed {
+  transform: rotateY(0deg) translateZ(1px) scale(1.05);
+}
+
+.page-face-back.zoomed {
+  transform: rotateY(180deg) translateZ(1px) scale(1.05);
+}
+
+.seal-caption {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #473218;
+  opacity: 0.85;
+}
+
+.wax-seal-img-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 135px;
+  height: 135px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-wax-glow) 0%, var(--color-wax-red) 70%, #4a0000 100%);
+  border: 4px solid var(--color-gold);
+  box-shadow: 0 14px 40px rgba(139, 0, 0, 0.85), 0 0 30px var(--color-gold-glow);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.4s ease;
+  outline: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.wax-seal-img-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.wax-seal-img-btn:hover {
+  transform: translate(-50%, -50%) scale(1.12) rotate(5deg);
+  box-shadow: 0 18px 45px rgba(255, 51, 51, 0.95);
+}
+
+.wax-seal-img-btn.cracked {
+  animation: waxShatter 0.8s forwards;
+}
+
+@keyframes waxShatter {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.25) rotate(-10deg); filter: brightness(1.5); }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+.seal-prompt {
+  font-family: var(--font-subheading);
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #78350f !important;
+}
+
+/* Hidden Birthday Parchment Scroll until Red Seal is clicked */
+.birthday-parchment-scroll {
+  position: absolute;
+  left: 50%;
+  top:45%;
+  transform: translate(-50%, -50%) scale(0.9);
+  max-width: 380px;
+  width: 90%;
+  background: var(--color-parchment);
+  border: 2px solid #8b5e3c;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 3;
+}
+
+.birthday-parchment-scroll.revealed {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.letter-salutation {
+  font-family: var(--font-handwriting);
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: #78350f !important;
+  line-height: 1.2;
+}
+
+.letter-header {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1a0f07 !important;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.letter-body {
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #1a0f07 !important;
+  white-space: pre-line;
+}
+
+.wishes-card {
+  background: rgba(226, 192, 68, 0.2);
+  border: 2px solid var(--color-gold);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 10px;
+}
+
+.wishes-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wishes-list li {
+  font-family: var(--font-subheading);
+  font-size: 1rem;
+  font-weight: bold;
+  color: #1a0f07 !important;
+}
+
+.page-turn-hint {
+  margin-top: auto;
+  text-align: center;
+  font-family: var(--font-subheading);
+  font-size: 0.9rem;
+  color: #78350f !important;
+  font-weight: bold;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(139, 94, 60, 0.5);
+}
+
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* ---------- Large Tablets & Small Laptops (769px – 1024px) ---------- */
+@media (max-width: 1024px) {
+  html, body { font-size: 16px; }
+
+  .book-container {
+    width: 94vw;
+    max-width: 900px;
+    height: 84vh;
+    max-height: 700px;
+  }
+
+  .book-container.state-closed {
+    width: 380px;
+    height: 560px;
+  }
+
+  .book-page-base-plate { padding: 25px; }
+  .page-face-front, .page-face-back { padding: 22px; }
+
+  .page-title { font-size: 1.6rem; }
+  .page-body-text { font-size: 1.05rem; }
+  .page-illustration { height: 320px; }
+  .page-illustration.small-illustration { height: 480px; }
+  .portrait-frame-art { height: 190px; }
+
+  .cover-embossed-title { font-size: 1.9rem; }
+  .cover-embossed-recipient { font-size: 1.7rem; }
+
+  .intro-portal-card { padding: 35px 28px; max-width: 540px; }
+  .portal-title { font-size: 2.1rem; }
+  .portal-recipient { font-size: 1.9rem; }
+
+  .cinematic-caption { max-width: 550px; padding: 16px 30px; bottom: 60px; }
+  .cinematic-caption h2 { font-size: 1.4rem; }
+  .cinematic-caption p { font-size: 1.05rem; }
+}
+
+/* ---------- Tablets Portrait (481px – 768px) ---------- */
+@media (max-width: 768px) {
+  html, body { font-size: 14px; }
+
+  .book-container {
+    width: 96vw;
+    max-width: none;
+    height: 80vh;
+    max-height: none;
+  }
+
+  .book-container.state-closed {
+    width: 300px;
+    height: 440px;
+    transform: rotateX(20deg) rotateZ(-2deg) translateY(30px) scale(0.78);
+  }
+
+  .book-container.state-closed:hover {
+    transform: rotateX(12deg) rotateZ(-1deg) translateY(15px) scale(0.84);
+  }
+
+  .book-page-base-plate { padding: 18px; }
+  .page-face-front, .page-face-back { padding: 16px; }
+
+  .page-title { font-size: 1.35rem; margin-bottom: 4px; }
+  .page-badge { font-size: 0.75rem; letter-spacing: 1.5px; }
+  .page-tagline { font-size: 1.05rem; padding-left: 10px; margin-bottom: 10px; }
+  .page-body-text { font-size: 0.95rem; line-height: 1.55; }
+  .page-body-text::first-letter { font-size: 2.2rem; }
+  .page-turn-hint { font-size: 0.75rem; padding-top: 6px; }
+
+  .page-illustration { height: 200px; margin-bottom: 8px; }
+  .page-illustration.small-illustration { height: 350px; }
+  .illustration-caption { font-size: 0.72rem; padding: 4px; }
+
+  .portraits-grid { gap: 6px; }
+  .portrait-frame-art { height: 150px; }
+  .portrait-card { border-width: 1.5px; }
+
+  .quotes-card { padding: 12px; gap: 8px; }
+  .quote-text { font-size: 0.9rem; }
+  .quote-author { font-size: 0.75rem; }
+
+  .toc-list { gap: 4px; }
+  .toc-list li { padding: 4px 6px; }
+  .toc-chapter { font-size: 0.65rem; }
+  .toc-description { font-size: 0.7rem; }
+
+  .cover-emblem-seal { width: 85px; height: 85px; margin-bottom: 18px; }
+  .emblem-crest { font-size: 1.6rem; }
+  .rune-circle-glow { font-size: 0.65rem; }
+  .cover-embossed-title { font-size: 1.5rem; }
+  .cover-embossed-recipient { font-size: 1.4rem; }
+  .cover-gold-subtitle { font-size: 0.85rem; margin-bottom: 20px; }
+  .cover-open-prompt { padding: 10px 22px; font-size: 0.85rem; }
+  .corner-protector { width: 30px; height: 30px; border-width: 2px; }
+
+  .intro-portal-card { padding: 28px 22px; max-width: 450px; }
+  .hogwarts-crest { font-size: 2.6rem; margin-bottom: 10px; }
+  .portal-title { font-size: 1.7rem; }
+  .portal-recipient { font-size: 1.6rem; }
+  .portal-subtitle { font-size: 1rem; margin-bottom: 18px; }
+  .portal-status-badge { font-size: 0.9rem; padding: 10px 22px; }
+
+  .cinematic-caption { max-width: 420px; padding: 14px 22px; bottom: 50px; }
+  .cinematic-caption h2 { font-size: 1.2rem; }
+  .cinematic-caption p { font-size: 0.95rem; }
+
+  .envelope-shell { max-width: 280px; min-height: 140px; }
+  .wax-seal-img-btn { width: 100px; height: 100px; }
+  .birthday-parchment-scroll { max-width: 300px; padding: 14px; }
+  .letter-salutation { font-size: 1.1rem; }
+  .letter-header { font-size: 1.1rem; }
+  .letter-body { font-size: 0.82rem; line-height: 1.4; }
+
+  .wishes-card { padding: 12px; }
+  .wishes-list li { font-size: 0.85rem; }
+  .wishes-list { gap: 8px; }
+
+  .inside-cover-border { padding: 20px 14px; }
+  .inside-cover-crest { font-size: 2rem; }
+  .inside-cover-title { font-size: 1.4rem; }
+  .inside-cover-recipient { font-size: 1.15rem; }
+  .inside-cover-quote { font-size: 0.95rem; }
+
+  .audio-control-btn { padding: 8px 14px; top: 12px; right: 12px; }
+  .audio-icon { font-size: 1.1rem; }
+  .audio-label { font-size: 0.8rem; }
+
+  .candle-light-glow { width: 250px; height: 250px; }
+}
+
+/* ---------- Mobile Phones (≤ 480px) ---------- */
+@media (max-width: 480px) {
+  html, body { font-size: 13px; }
+
+  .book-container {
+    width: 98vw;
+    height: 78vh;
+    perspective: 1800px;
+  }
+
+  .book-container.state-closed {
+    width: 240px;
+    height: 360px;
+    transform: rotateX(18deg) rotateZ(-2deg) translateY(25px) scale(0.75);
+  }
+
+  .book-container.state-closed:hover {
+    transform: rotateX(10deg) rotateZ(-1deg) translateY(10px) scale(0.8);
+  }
+
+  .book-page-base-plate { padding: 12px; top: 4px; height: calc(100% - 8px); }
+  .left-base-plate { left: 4px; width: calc(50% - 4px); }
+  .right-base-plate { right: 4px; width: calc(50% - 4px); }
+
+  .page-face-front, .page-face-back { padding: 10px; }
+  .page-sheet { top: 4px; width: calc(50% - 4px); height: calc(100% - 8px); }
+
+  .page-title { font-size: 1.1rem; margin-bottom: 3px; }
+  .page-badge { font-size: 0.6rem; letter-spacing: 1px; margin-bottom: 2px; }
+  .page-tagline { font-size: 0.85rem; padding-left: 8px; margin-bottom: 6px; border-left-width: 3px; }
+  .page-body-text { font-size: 0.78rem; line-height: 1.45; }
+  .page-body-text::first-letter { font-size: 1.6rem; margin-right: 4px; }
+  .page-turn-hint { font-size: 0.6rem; padding-top: 4px; }
+
+  .page-illustration { height: 120px; margin-bottom: 6px; border-width: 2px; border-radius: 8px; }
+  .page-illustration.small-illustration { height: 200px; }
+  .illustration-caption { font-size: 0.6rem; padding: 2px; }
+
+  .portraits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .portrait-frame-art { height: 100px; border-radius: 6px; }
+  .portrait-card { border-radius: 6px; border-width: 1px; }
+
+  .quotes-card { padding: 8px; gap: 6px; margin-top: 6px; }
+  .quote-text { font-size: 0.75rem; }
+  .quote-author { font-size: 0.65rem; }
+  .quote-item { padding-left: 8px; border-left-width: 3px; }
+
+  .toc-list { gap: 3px; }
+  .toc-list li { padding: 3px 5px; border-radius: 5px; }
+  .toc-chapter { font-size: 0.55rem; }
+  .toc-description { font-size: 0.6rem; }
+
+  .cover-emblem-seal { width: 65px; height: 65px; margin-bottom: 12px; border-width: 2px; }
+  .emblem-crest { font-size: 1.2rem; }
+  .rune-circle-glow { font-size: 0.5rem; }
+  .cover-embossed-title { font-size: 1.15rem; }
+  .cover-embossed-recipient { font-size: 1.1rem; margin-bottom: 8px; }
+  .cover-gold-subtitle { font-size: 0.7rem; margin-bottom: 14px; }
+  .cover-open-prompt { padding: 8px 16px; font-size: 0.7rem; border-radius: 20px; }
+  .cover-face-front { padding: 20px; border-width: 5px; }
+  .corner-protector { width: 22px; height: 22px; border-width: 2px; }
+  .top-left { top: 8px; left: 8px; }
+  .top-right { top: 8px; right: 8px; }
+  .bottom-left { bottom: 8px; left: 8px; }
+  .bottom-right { bottom: 8px; right: 8px; }
+
+  .back-cover-plate { border-width: 5px; }
+
+  .intro-portal-card { padding: 22px 16px; max-width: 340px; border-radius: 16px; }
+  .hogwarts-crest { font-size: 2rem; margin-bottom: 8px; }
+  .portal-title { font-size: 1.3rem; }
+  .portal-recipient { font-size: 1.25rem; margin-bottom: 8px; }
+  .portal-subtitle { font-size: 0.85rem; margin-bottom: 14px; }
+  .portal-status-badge { font-size: 0.75rem; padding: 8px 16px; }
+
+  .cinematic-caption { max-width: 320px; padding: 10px 16px; bottom: 35px; border-radius: 10px; }
+  .cinematic-caption h2 { font-size: 1rem; margin-bottom: 4px; }
+  .cinematic-caption p { font-size: 0.82rem; }
+
+  .envelope-shell { max-width: 200px; min-height: 110px; border-radius: 12px; border-width: 2px; }
+  .wax-seal-img-btn { width: 75px; height: 75px; border-width: 3px; }
+  .seal-caption { font-size: 0.75rem; }
+  .birthday-parchment-scroll { max-width: 240px; padding: 10px; border-radius: 8px; }
+  .letter-salutation { font-size: 0.9rem; }
+  .letter-header { font-size: 0.9rem; }
+  .letter-body { font-size: 0.7rem; line-height: 1.35; }
+
+  .wishes-card { padding: 10px; margin-top: 6px; }
+  .wishes-list li { font-size: 0.72rem; }
+  .wishes-list { gap: 6px; }
+
+  .inside-cover-border { padding: 14px 10px; width: 92%; height: 92%; }
+  .inside-cover-crest { font-size: 1.5rem; margin-bottom: 8px; }
+  .inside-cover-title { font-size: 1.1rem; }
+  .inside-cover-recipient { font-size: 0.95rem; margin-bottom: 10px; }
+  .inside-cover-line { width: 40px; margin-bottom: 10px; }
+  .inside-cover-quote { font-size: 0.8rem; }
+
+  .audio-control-btn { padding: 6px 10px; top: 8px; right: 8px; gap: 6px; border-radius: 20px; }
+  .audio-icon { font-size: 0.95rem; }
+  .audio-label { font-size: 0.68rem; }
+
+  .candle-light-glow { width: 180px; height: 180px; top: 10%; left: 15%; }
+}
+
+/* ---------- Very Small Phones (≤ 360px) ---------- */
+@media (max-width: 360px) {
+  html, body { font-size: 12px; }
+
+  .book-container { height: 75vh; perspective: 1600px; }
+
+  .book-container.state-closed {
+    width: 200px;
+    height: 300px;
+  }
+
+  .page-face-front, .page-face-back { padding: 8px; }
+  .page-title { font-size: 0.95rem; }
+  .page-body-text { font-size: 0.7rem; }
+  .page-illustration { height: 90px; }
+  .page-illustration.small-illustration { height: 160px; }
+  .portrait-frame-art { height: 80px; }
+
+  .cover-embossed-title { font-size: 0.95rem; }
+  .cover-embossed-recipient { font-size: 0.9rem; }
+  .cover-emblem-seal { width: 50px; height: 50px; margin-bottom: 8px; }
+
+  .intro-portal-card { padding: 16px 12px; }
+  .portal-title { font-size: 1.1rem; }
+  .portal-recipient { font-size: 1.05rem; }
+
+  .birthday-parchment-scroll { max-width: 200px; padding: 8px; }
+  .letter-body { font-size: 0.62rem; }
+}
+
+/* ---------- Landscape Orientation on Mobile ---------- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .book-container {
+    height: 90vh;
+    max-height: none;
+  }
+
+  .book-container.state-closed {
+    width: 220px;
+    height: 320px;
+    transform: rotateX(15deg) rotateZ(-2deg) translateY(15px) scale(0.7);
+  }
+
+  .intro-portal-card { padding: 14px 16px; }
+  .hogwarts-crest { font-size: 1.6rem; margin-bottom: 4px; }
+  .portal-title { font-size: 1.2rem; }
+  .portal-recipient { font-size: 1.1rem; margin-bottom: 4px; }
+  .portal-subtitle { font-size: 0.75rem; margin-bottom: 8px; }
+  .portal-status-badge { padding: 6px 14px; font-size: 0.7rem; }
+
+  .cinematic-caption { bottom: 10px; padding: 8px 14px; }
+  .cinematic-caption h2 { font-size: 0.9rem; margin-bottom: 2px; }
+  .cinematic-caption p { font-size: 0.75rem; }
+}
+
+/* ---------- Touch Device Optimizations ---------- */
+@media (hover: none) and (pointer: coarse) {
+  .portrait-card:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .audio-control-btn:hover { transform: none; }
+  .book-container.state-closed:hover { transform: rotateX(25deg) rotateZ(-3deg) translateY(50px) scale(0.82); }
+  .wax-seal-img-btn:hover { transform: translate(-50%, -50%) scale(1); }
+  .page-sheet { cursor: default; }
+}
